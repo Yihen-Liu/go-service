@@ -1,0 +1,11 @@
+{
+  "Logger": {
+    "LogLevel": 1,
+    "LogFileDir": "./log/"
+  },
+
+  "Backend":{
+    "Host": "localhost",
+    "RpcPort": 9000
+  }
+}
