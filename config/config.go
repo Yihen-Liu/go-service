@@ -19,9 +19,14 @@ type Backend struct {
 	RpcPort uint16 `json:"RpcPort"`
 }
 
+type BscChain struct {
+	Rpc string `json:"Rpc"`
+}
+
 type CarrierConfig struct {
-	Backend Backend `json:"Backend"`
-	Logger  Log     `json:"Logger"`
+	Backend  Backend  `json:"Backend"`
+	Logger   Log      `json:"Logger"`
+	BscChain BscChain `json:"BscChain"`
 }
 
 var CarrierConf CarrierConfig

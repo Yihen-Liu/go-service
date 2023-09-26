@@ -37,6 +37,8 @@ func main() {
 	ctx := getContext()
 
 	go http.RunRPCService(ctx)
+	go http.MonitorBestHeight(ctx)
+	go http.ClearRedundantTxs(ctx)
 	//go lightning.StartLnTestnetService(ctx)
 	select {
 	case <-ctx.Done():
