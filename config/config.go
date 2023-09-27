@@ -27,6 +27,7 @@ type CarrierConfig struct {
 	Backend  Backend  `json:"Backend"`
 	Logger   Log      `json:"Logger"`
 	BscChain BscChain `json:"BscChain"`
+	LevelDb  string   `json:"LevelDb"`
 }
 
 var CarrierConf CarrierConfig

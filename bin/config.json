@@ -1,4 +1,5 @@
 {
+  "LevelDb": "./level.db",
   "Logger": {
     "LogLevel": 1,
     "LogFileDir": "./log/"
