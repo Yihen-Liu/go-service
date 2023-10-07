@@ -8,6 +8,11 @@ import (
 	"github.com/Yihen-Liu/go-service/config"
 	"github.com/Yihen-Liu/go-service/db"
 	"github.com/Yihen-Liu/go-service/log"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"math/big"
 	"sync"
 	"time"
 )
@@ -20,6 +25,29 @@ import (
 var bestHeight int64
 var latestTxs = new(sync.Map)
 
+type txJSON struct {
+	Type hexutil.Uint64 `json:"type"`
+
+	ChainID              *hexutil.Big      `json:"chainId,omitempty"`
+	Nonce                *hexutil.Uint64   `json:"nonce"`
+	To                   *common.Address   `json:"to"`
+	Gas                  *hexutil.Uint64   `json:"gas"`
+	GasPrice             *hexutil.Big      `json:"gasPrice"`
+	MaxPriorityFeePerGas *hexutil.Big      `json:"maxPriorityFeePerGas"`
+	MaxFeePerGas         *hexutil.Big      `json:"maxFeePerGas"`
+	MaxFeePerBlobGas     *hexutil.Big      `json:"maxFeePerBlobGas,omitempty"`
+	Value                *hexutil.Big      `json:"value"`
+	Input                *hexutil.Bytes    `json:"input"`
+	AccessList           *types.AccessList `json:"accessList,omitempty"`
+	BlobVersionedHashes  []common.Hash     `json:"blobVersionedHashes,omitempty"`
+	V                    *hexutil.Big      `json:"v"`
+	R                    *hexutil.Big      `json:"r"`
+	S                    *hexutil.Big      `json:"s"`
+	YParity              *hexutil.Uint64   `json:"yParity,omitempty"`
+
+	// Only used for encoding:
+	Hash common.Hash `json:"hash"`
+}
 type Persistment struct {
 	BlockNumbers []int64                  `json:"BlockNumbers"`
 	Txs          []web3.BscRpcTransaction `json:"Txs"`
@@ -97,7 +125,44 @@ func ClearRedundantTxs(ctx context.Context) {
 		}
 	}
 }
+func doClientRequestBlock() {
+	client, err := ethclient.Dial(config.CarrierConf.BscChain.Rpc)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	for {
+		select {
+		case <-time.After(1 * time.Second):
+			height, err := client.BlockNumber(context.Background())
+			if err != nil {
+				log.Errorf("get block height err:", err.Error())
+				continue
+			}
+
+			block, err := client.BlockByNumber(context.Background(), new(big.Int).SetInt64(int64(height)))
+			if err != nil {
+				log.Errorf("get block err:", err.Error())
+				continue
+			}
+
+			txs := block.Transactions()
+			if len(txs) == 0 {
+				continue
+			}
+
+			for _, tx := range txs {
+				innerBytes, err := tx.MarshalBinary()
+				if err != nil {
+					log.Errorf("marshal tx.inner err:", err.Error())
+					continue
+				}
+				tx.UnmarshalJSON(innerBytes)
+				tx.AccessList()
+			}
+		}
+	}
+}
 func MonitorBestHeight(ctx context.Context) {
 	for {
 		select {
