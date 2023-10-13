@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/Yihen-Liu/go-service/http"
 	"github.com/Yihen-Liu/go-service/log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 /**
@@ -36,13 +36,19 @@ func getContext() context.Context {
 func main() {
 	ctx := getContext()
 
-	go http.RunRPCService(ctx)
-	go http.MonitorBestHeight(ctx)
-	go http.ClearRedundantTxs(ctx)
+	//go http.RunRPCService(ctx)
+	//go http.MonitorBestHeight(ctx)
+	//go http.ClearRedundantTxs(ctx)
 	//go lightning.StartLnTestnetService(ctx)
-	select {
-	case <-ctx.Done():
-		log.Info("main quit")
+	for {
+		select {
+		case <-ctx.Done():
+			log.Info("main quit")
+		case <-time.After(5 * time.Second):
+
+			//log.InitLog(conf.Conf.LogLevel, conf.Conf.LogName, log.Stdout)
+			log.InitLog(2, "./logs/")
+		}
 	}
 
 }
