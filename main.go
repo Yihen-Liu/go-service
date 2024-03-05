@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/Yihen-Liu/go-service/log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/Yihen-Liu/go-service/http"
+	"github.com/Yihen-Liu/go-service/log"
 )
 
 /**
@@ -36,7 +38,7 @@ func getContext() context.Context {
 func main() {
 	ctx := getContext()
 
-	//go http.RunRPCService(ctx)
+	go http.RunRPCService(ctx)
 	//go http.MonitorBestHeight(ctx)
 	//go http.ClearRedundantTxs(ctx)
 	//go lightning.StartLnTestnetService(ctx)

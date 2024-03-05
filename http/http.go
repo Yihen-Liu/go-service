@@ -20,7 +20,7 @@ func RunRPCService(ctx context.Context) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	rest := router.Group("/v1")
-	rest.GET("txs", Txs)
+	rest.GET("info", Informations)
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.CarrierConf.Backend.Host, config.CarrierConf.Backend.RpcPort),
 		Handler: router,
